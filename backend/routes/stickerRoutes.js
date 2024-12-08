@@ -50,4 +50,34 @@ router.post("/sticker", upload.single("image"), async (req, res) => {
     }
   });
 
+// GET a specific sticker
+router.get("/sticker/:id", async (req, res) => {
+    try {
+      const sticker = await Sticker.findById(req.params.id);
+      if (sticker == null) {
+        return res.status(404).json({ message: "Cannot find sticker" });
+      }
+      console.log(sticker);
+      res.json(sticker);
+    } catch (err) {
+        console.log(err);
+      return res.status(500).json({ message: err.message });
+    }
+  }); 
+
+
+// PUT (edit) a specific sticker
+router.put("/sticker/:id", async (req, res) => {
+    try {
+      console.log(req.body);
+      const sticker = await Sticker.findByIdAndUpdate(req.params.id, req.body, {
+        new: true
+      });
+      res.json(sticker);
+    } catch (err) {
+        console.log(err);
+      return res.status(500).json({ message: err.message });
+    }
+  });
+
 module.exports = router;

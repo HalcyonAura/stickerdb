@@ -8,6 +8,7 @@ const UploadModal = ({ onClose, onSave }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const baseUrl = process.env.REACT_APP_API_URL; 
 
   // Add state for metadata fields
   const [locationSource, setLocationSource] = useState("");
@@ -49,8 +50,8 @@ const UploadModal = ({ onClose, onSave }) => {
       formData.append("designRating", designRating);
       formData.append("qualityRating", qualityRating);
 
-      // Make API call // UPDATED
-      const response = await axios.post("http://localhost:5000/api/sticker", formData, {
+      // Make API call
+      const response = await axios.post(`${baseUrl}/api/sticker`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

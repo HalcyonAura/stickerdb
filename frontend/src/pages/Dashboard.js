@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import UploadModal from "../components/UploadModal";
+import StickerEditModal from "../components/StickerEditModal";
 import axios from "axios";
 
 const Dashboard = () => {
   const baseUrl = process.env.REACT_APP_API_URL; 
 
   const [stickers, setStickers] = useState([]); 
-  const [isModalOpen, setModalOpen] = useState(false);
+  const [selectedSticker, setSelectedSticker] = useState(null);
+  const [isCreateModalOpen, setCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
   const navigate = useNavigate();
 
   // Redirect to login page if not logged in
@@ -38,13 +41,28 @@ const Dashboard = () => {
     setStickers([...stickers, newSticker]);
   };
 
+  const handleEditSticker = (updatedSticker) => {
+    setSelectedSticker(updatedSticker);
+    setEditModalOpen(true);
+  }
+
+  const handleEditSaveSticker = (updatedSticker) => {
+    console.log("handling edit save");
+    setStickers((prevStickers) => 
+      prevStickers.map((sticker) =>
+        sticker._id === updatedSticker._id ? updatedSticker : sticker
+  ));
+    setEditModalOpen(false);
+  }
+
+
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <h1>Your Dashboard</h1>
-      <button onClick={() => setModalOpen(true)}>Upload New Sticker</button>
+      <button onClick={() => setCreateModalOpen(true)}>Upload New Sticker</button>
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", marginTop: "20px" }}>
-        {stickers.map((sticker) => ( // updated
-          <div key={sticker._id} className="sticker" style={{ margin: "20px" }}>
+        {stickers.map((sticker) => (
+          <div key={sticker._id} className="sticker" style={{ margin: "20px" }} onClick={() => handleEditSticker(sticker)}>
             <img src={`${baseUrl}${sticker.image.url}`} alt={sticker.image.name} style={{ width: "150px", height: "150px", objectFit: "cover" }} />
             <div>
               <p><strong>{sticker.image.name}</strong></p>
@@ -59,8 +77,11 @@ const Dashboard = () => {
           </div>
         ))}
       </div>
-      {isModalOpen && (
-        <UploadModal onClose={() => setModalOpen(false)} onSave={handleSaveSticker} />
+      {isCreateModalOpen && (
+        <UploadModal onClose={() => setCreateModalOpen(false)} onSave={handleSaveSticker} />
+      )}
+      {isEditModalOpen && selectedSticker && (
+        <StickerEditModal sticker={selectedSticker} onClose={() => setEditModalOpen(false)} onSave={handleEditSaveSticker} />
       )}
     </div>
   );

@@ -1,9 +1,8 @@
-// BRAND NEW/REDO ROUTES.JS
-
 const express = require("express");
 const router = express.Router();
 const Sticker = require("../models/Sticker");
 const {upload, saveFile} =require("../middleware/upload"); 
+const passport = require("passport");
 
 // GET all stickers
 router.get("/stickers", async (req, res) => {
@@ -17,7 +16,7 @@ router.get("/stickers", async (req, res) => {
 
 // POST a new sticker
 // Upload a cropped image and save metadata
-router.post("/sticker", upload.single("image"), async (req, res) => {
+router.post("/sticker", upload.single("image"), passport.authenticate("jwt", { session: false }), async (req, res) => {
     try {
     console.log(req.body);  // Debug log to inspect form fields
     console.log(req.file);   // Debug log to inspect uploaded file
@@ -67,7 +66,7 @@ router.get("/sticker/:id", async (req, res) => {
 
 
 // PUT (edit) a specific sticker
-router.put("/sticker/:id", async (req, res) => {
+router.put("/sticker/:id", passport.authenticate("jwt", { session: false }), async (req, res) => {
     try {
       console.log(req.body);
       const sticker = await Sticker.findByIdAndUpdate(req.params.id, req.body, {

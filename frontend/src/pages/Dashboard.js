@@ -1,26 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import UploadModal from "../components/UploadModal";
 import StickerEditModal from "../components/StickerEditModal";
+import SignInUp from "../components/SignInUp";
 import axios from "axios";
 
-const Dashboard = () => {
+const Dashboard = (setAuth, isAuth, handleLogout) => {
   const baseUrl = process.env.REACT_APP_API_URL; 
 
   const [stickers, setStickers] = useState([]); 
   const [selectedSticker, setSelectedSticker] = useState(null);
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
-  const navigate = useNavigate();
-
-  // Redirect to login page if not logged in
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    if (!isLoggedIn) {
-      navigate("/");
-    }
-  }, [navigate]);
-
+  
   // Fetch stickers from backend (MongoDB)
   useEffect(() => {
     const fetchStickers = async () => {
@@ -41,9 +32,14 @@ const Dashboard = () => {
     setStickers([...stickers, newSticker]);
   };
 
+  // Set restrictions
   const handleEditSticker = (updatedSticker) => {
-    setSelectedSticker(updatedSticker);
-    setEditModalOpen(true);
+    if (isAuth){
+      setSelectedSticker(updatedSticker);
+      setEditModalOpen(true);
+    } else {
+      alert("You must be logged in to edit a sticker");
+    }
   }
 
   const handleEditSaveSticker = (updatedSticker) => {
@@ -55,11 +51,16 @@ const Dashboard = () => {
     setEditModalOpen(false);
   }
 
-
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <h1>Your Dashboard</h1>
-      <button onClick={() => setCreateModalOpen(true)}>Upload New Sticker</button>
+      { !isAuth && <SignInUp setAuth={setAuth} />}
+      { isAuth && (
+        <>
+        <button onClick={handleLogout}>Logout</button>
+        <button onClick={() => setCreateModalOpen(true)}>Upload New Sticker</button>
+        </>)
+      }
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", marginTop: "20px" }}>
         {stickers.map((sticker) => (
           <div key={sticker._id} className="sticker" style={{ margin: "20px" }} onClick={() => handleEditSticker(sticker)}>
